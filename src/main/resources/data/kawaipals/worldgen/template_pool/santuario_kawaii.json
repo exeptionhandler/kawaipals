@@ -1,0 +1,15 @@
+{
+  "name": "kawaipals:santuario_kawaii",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "kawaipals:santuario_kawaii",
+        "projection": "rigid",
+        "processors": "minecraft:empty"
+      }
+    }
+  ]
+}

@@ -27,7 +27,11 @@ public final class ModEntities {
     );
 
     public static void register() {
-        KawaiPalsMod.LOGGER.info("[KawaiPals] Registered entity types.");
+        net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(
+            PAL_ENTITY,
+            PalEntity.createAttributes()
+        );
+        KawaiPalsMod.LOGGER.info("[KawaiPals] Registered entity types and default attributes.");
     }
 
     private ModEntities() {}

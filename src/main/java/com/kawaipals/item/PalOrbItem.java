@@ -7,6 +7,7 @@ import com.kawaipals.registry.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -186,6 +187,7 @@ public class PalOrbItem extends Item {
 
     public static void setPalType(ItemStack stack, PalType type) {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putString(NBT_PAL_TYPE, type.id));
+        stack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(com.kawaipals.KawaiPalsMod.MOD_ID, "pal_orb_" + type.id));
     }
 
     @Nullable
