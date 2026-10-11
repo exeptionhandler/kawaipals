@@ -1,0 +1,57 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "name": "ruinas_pool_legendary",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 40,
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{PalData:{palType:\"pegasito\",captured:0b}}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 30,
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{PalData:{palType:\"celestia\",captured:0b}}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 30,
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{PalData:{palType:\"xolotl_rey\",captured:0b}}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ruinas_pool_extras",
+      "rolls": {
+        "min": 1,
+        "max": 3
+      },
+      "entries": [
+        { "type": "minecraft:item", "name": "minecraft:diamond",         "weight": 5  },
+        { "type": "minecraft:item", "name": "minecraft:netherite_ingot", "weight": 2  },
+        { "type": "minecraft:item", "name": "minecraft:enchanted_book",  "weight": 3  },
+        { "type": "minecraft:empty",                                      "weight": 10 }
+      ]
+    }
+  ]
+}

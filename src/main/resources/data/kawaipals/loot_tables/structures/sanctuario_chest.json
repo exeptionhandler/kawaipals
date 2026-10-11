@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "name": "sanctuario_pool",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 60,
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{PalData:{palType:\"musgosin\",captured:0b}}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 40,
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{PalData:{palType:\"tempesin\",captured:0b}}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

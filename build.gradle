@@ -1,0 +1,92 @@
+// ──────────────────────────────────────────────────────────────
+// build.gradle – KawaiPals Fabric mod
+// Minecraft 26.2 · Fabric Loader 0.19.3 · GeckoLib 5.x · Java 25
+// ──────────────────────────────────────────────────────────────
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+// ── Basic project metadata ───────────────────────────────────
+version  = project.mod_version
+group    = project.maven_group
+base.archivesName = project.archives_base_name
+
+// ── Java toolchain ───────────────────────────────────────────
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())
+    }
+    // Publish sources jar alongside the mod jar
+    withSourcesJar()
+}
+
+// ── Loom (Fabric) configuration ──────────────────────────────
+loom {
+}
+
+// ── Repositories ─────────────────────────────────────────────
+repositories {
+    maven { url "https://maven.fabricmc.net/" }
+    // GeckoLib repository
+    maven {
+        name = "GeckoLib"
+        url  = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
+    }
+    maven {
+        name = "Modrinth"
+        url  = "https://api.modrinth.com/maven"
+    }
+    mavenCentral()
+}
+
+// ── Dependencies ─────────────────────────────────────────────
+dependencies {
+    // Minecraft (unobfuscated in 26.2+)
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+
+    // Fabric Loader
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+
+    // Fabric API (full API suite)
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    // GeckoLib 5.x for Fabric 26.2 via Modrinth Maven
+    implementation "maven.modrinth:geckolib:7gaQHok7"
+}
+
+// ── Process resources – inject mod version/id into fabric.mod.json ──
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+// ── Reproducible builds ──────────────────────────────────────
+tasks.withType(JavaCompile).configureEach {
+    options.release = project.java_version.toInteger()
+    options.encoding = "UTF-8"
+}
+
+// ── Jar manifest ─────────────────────────────────────────────
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}
+
+// ── Maven publishing (optional, for local testing) ───────────
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
+    repositories {
+        // Uncomment to publish to local Maven (~/.m2)
+        // mavenLocal()
+    }
+}

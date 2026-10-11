@@ -1,0 +1,48 @@
+{
+  "item.kawaipals.pal_orb":  "Pal Orb",
+  "item.kawaipals.compendium": "Pal Compendium",
+
+  "itemGroup.kawaipals.kawaipals": "KawaiPals",
+
+  "entity.kawaipals.pal_entity": "Pal",
+
+  "kawaipals.screen.compendium.title": "Pal Compendium",
+  "kawaipals.screen.capture.title":    "Capture!",
+
+  "kawaipals.orb.empty":           "This orb is empty.",
+  "kawaipals.orb.summoned":        "%s appeared!",
+  "kawaipals.orb.recalled":        "%s returned to the orb.",
+  "kawaipals.orb.not_nearby":      "Your Pal is not nearby!",
+  "kawaipals.orb.already_captured":"Your Pal is already inside the orb.",
+  "kawaipals.orb.captured":        "[Captured]",
+  "kawaipals.orb.summoned_out":    "[Summoned]",
+  "kawaipals.orb.no_pal":          "No Pal stored.",
+
+  "kawaipals.compendium.tooltip":  "A record of all Pals in the world.",
+  "kawaipals.compendium.tooltip2": "Right-click to open.",
+
+  "kawaipals.pal.gotita.name":      "Gotita",
+  "kawaipals.pal.gotita.power":     "Grants Speed I while summoned.",
+  "kawaipals.pal.brillin.name":     "Brillin",
+  "kawaipals.pal.brillin.power":    "Grants Night Vision while summoned.",
+  "kawaipals.pal.carbonito.name":   "Carbonito",
+  "kawaipals.pal.carbonito.power":  "Grants Haste I while summoned.",
+  "kawaipals.pal.zephyra.name":     "Zephyra",
+  "kawaipals.pal.zephyra.power":    "Grants Slow Falling while summoned.",
+  "kawaipals.pal.fenixito.name":    "Fenixito",
+  "kawaipals.pal.fenixito.power":   "Grants Fire Resistance while summoned.",
+  "kawaipals.pal.musgosin.name":    "Musgosin",
+  "kawaipals.pal.musgosin.power":   "Grants Regeneration I while summoned.",
+  "kawaipals.pal.tempesin.name":    "Tempesin",
+  "kawaipals.pal.tempesin.power":   "Adds +4 max hearts while summoned.",
+  "kawaipals.pal.luminarix.name":   "Luminarix",
+  "kawaipals.pal.luminarix.power":  "Grants Strength II and Absorption while summoned.",
+  "kawaipals.pal.guardian_astral.name":  "Guardian Astral",
+  "kawaipals.pal.guardian_astral.power": "Activates a magic shield absorbing the next hit (30s cooldown).",
+  "kawaipals.pal.pegasito.name":    "Pegasito",
+  "kawaipals.pal.pegasito.power":   "Rideable – grants flight while mounted.",
+  "kawaipals.pal.celestia.name":    "Celestia",
+  "kawaipals.pal.celestia.power":   "Adds +8 max hearts and Regeneration II while summoned.",
+  "kawaipals.pal.xolotl_rey.name":  "Xolotl Rey",
+  "kawaipals.pal.xolotl_rey.power": "Resurrects you automatically once per day upon death."
+}

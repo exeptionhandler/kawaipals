@@ -1,0 +1,20 @@
+// ──────────────────────────────────────────────────────────────
+// settings.gradle – KawaiPals Fabric mod
+// Configures Fabric Loom 1.17 and the Gradle Plugin Portal
+// ──────────────────────────────────────────────────────────────
+pluginManagement {
+    repositories {
+        // Fabric Maven – hosts Fabric Loom plugin
+        maven {
+            name = "Fabric"
+            url  = "https://maven.fabricmc.net/"
+        }
+        // Standard Gradle plugin portal (Kotlin plugin, etc.)
+        gradlePluginPortal()
+        // Maven Central for any other plugins
+        mavenCentral()
+    }
+}
+
+// Human-readable project name shown in IDE
+rootProject.name = "kawaipals"

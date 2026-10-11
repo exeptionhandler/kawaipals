@@ -1,0 +1,36 @@
+package com.kawaipals.entity;
+
+import com.geckolib.model.GeoModel;
+import com.geckolib.renderer.base.GeoRenderState;
+import com.kawaipals.KawaiPalsMod;
+import net.minecraft.resources.Identifier;
+
+/**
+ * PalEntityModel – the GeckoLib 5.5 GeoModel for all Pal entities.
+ */
+public class PalEntityModel extends GeoModel<PalEntity> {
+
+    private static final Identifier MODEL_LOCATION =
+        Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "geo/pal_entity.geo.json");
+
+    private static final Identifier FALLBACK_TEXTURE =
+        Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "textures/entity/gotita.png");
+
+    private static final Identifier ANIMATION_LOCATION =
+        Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "animations/pal_entity.animation.json");
+
+    @Override
+    public Identifier getModelResource(GeoRenderState renderState) {
+        return MODEL_LOCATION;
+    }
+
+    @Override
+    public Identifier getTextureResource(GeoRenderState renderState) {
+        return FALLBACK_TEXTURE;
+    }
+
+    @Override
+    public Identifier getAnimationResource(PalEntity entity) {
+        return ANIMATION_LOCATION;
+    }
+}

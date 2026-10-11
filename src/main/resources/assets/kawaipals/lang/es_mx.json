@@ -1,0 +1,48 @@
+{
+  "item.kawaipals.pal_orb":  "Orbe de Pal",
+  "item.kawaipals.compendium": "Compendio de Pals",
+
+  "itemGroup.kawaipals.kawaipals": "KawaiPals",
+
+  "entity.kawaipals.pal_entity": "Pal",
+
+  "kawaipals.screen.compendium.title": "Compendio de Pals",
+  "kawaipals.screen.capture.title":    "¡Captura!",
+
+  "kawaipals.orb.empty":           "Este orbe está vacío.",
+  "kawaipals.orb.summoned":        "¡%s apareció!",
+  "kawaipals.orb.recalled":        "%s regresó al orbe.",
+  "kawaipals.orb.not_nearby":      "¡Tu Pal no está cerca!",
+  "kawaipals.orb.already_captured":"Tu Pal ya está dentro del orbe.",
+  "kawaipals.orb.captured":        "[Capturado]",
+  "kawaipals.orb.summoned_out":    "[Invocado]",
+  "kawaipals.orb.no_pal":          "No hay Pal almacenado.",
+
+  "kawaipals.compendium.tooltip":  "Un registro de todos los Pals del mundo.",
+  "kawaipals.compendium.tooltip2": "Clic derecho para abrir.",
+
+  "kawaipals.pal.gotita.name":      "Gotita",
+  "kawaipals.pal.gotita.power":     "Otorga Velocidad I mientras está invocado.",
+  "kawaipals.pal.brillin.name":     "Brillin",
+  "kawaipals.pal.brillin.power":    "Otorga Visión Nocturna mientras está invocado.",
+  "kawaipals.pal.carbonito.name":   "Carbonito",
+  "kawaipals.pal.carbonito.power":  "Otorga Celeridad I mientras está invocado.",
+  "kawaipals.pal.zephyra.name":     "Zéfira",
+  "kawaipals.pal.zephyra.power":    "Otorga Caída Lenta mientras está invocado.",
+  "kawaipals.pal.fenixito.name":    "Fenixito",
+  "kawaipals.pal.fenixito.power":   "Otorga Resistencia al Fuego mientras está invocado.",
+  "kawaipals.pal.musgosin.name":    "Musgosin",
+  "kawaipals.pal.musgosin.power":   "Otorga Regeneración I mientras está invocado.",
+  "kawaipals.pal.tempesin.name":    "Tempesin",
+  "kawaipals.pal.tempesin.power":   "Agrega +4 corazones máximos mientras está invocado.",
+  "kawaipals.pal.luminarix.name":   "Luminarix",
+  "kawaipals.pal.luminarix.power":  "Otorga Fuerza II y Absorción mientras está invocado.",
+  "kawaipals.pal.guardian_astral.name":  "Guardián Astral",
+  "kawaipals.pal.guardian_astral.power": "Activa un escudo mágico que absorbe el próximo golpe (recarga 30s).",
+  "kawaipals.pal.pegasito.name":    "Pegasito",
+  "kawaipals.pal.pegasito.power":   "Montable – otorga vuelo mientras está montado.",
+  "kawaipals.pal.celestia.name":    "Celestia",
+  "kawaipals.pal.celestia.power":   "Agrega +8 corazones máximos y Regeneración II mientras está invocado.",
+  "kawaipals.pal.xolotl_rey.name":  "Xólotl Rey",
+  "kawaipals.pal.xolotl_rey.power": "Te resucita automáticamente una vez al día al morir."
+}
