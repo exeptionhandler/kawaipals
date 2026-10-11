@@ -3,6 +3,7 @@ package com.kawaipals.item;
 import com.kawaipals.core.PalType;
 import com.kawaipals.entity.PalEntity;
 import com.kawaipals.registry.ModEntities;
+import com.kawaipals.registry.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -16,11 +17,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * PalOrbItem – the core collectible item that stores a captured Pal.
@@ -35,6 +38,14 @@ public class PalOrbItem extends Item {
         super(properties);
     }
 
+    public static ItemStack createCaptured(PalType type) {
+        ItemStack stack = new ItemStack(ModItems.PAL_ORB);
+        setCaptured(stack, true);
+        setPalType(stack, type);
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal("Orbe de " + type.displayName).withStyle(type.rarity.color));
+        return stack;
+    }
+
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
@@ -47,6 +58,18 @@ public class PalOrbItem extends Item {
         }
 
         if (!isCaptured(stack)) {
+            if (player.isCreative()) {
+                PalType[] types = PalType.values();
+                PalType randomType = types[player.getRandom().nextInt(types.length)];
+                setCaptured(stack, true);
+                setPalType(stack, randomType);
+                stack.set(DataComponents.CUSTOM_NAME, Component.literal("Orbe de " + randomType.displayName).withStyle(randomType.rarity.color));
+                if (level.isClientSide()) {
+                    player.sendSystemMessage(Component.literal("¡Orbe cargado con " + randomType.displayName + "! Clic de nuevo para invocarlo.")
+                        .withStyle(randomType.rarity.color));
+                }
+                return InteractionResult.SUCCESS;
+            }
             if (level.isClientSide()) {
                 player.sendSystemMessage(Component.translatable("kawaipals.orb.empty")
                     .withStyle(ChatFormatting.RED));
@@ -59,6 +82,21 @@ public class PalOrbItem extends Item {
         }
 
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
+        PalType type = getPalType(stack);
+        if (type != null && isCaptured(stack)) {
+            tooltip.accept(Component.literal("★ " + type.rarity.displayName + " ★").withStyle(type.rarity.color));
+            tooltip.accept(Component.literal("✦ " + type.powerDescription).withStyle(ChatFormatting.GRAY));
+            if (type == PalType.PEGASITO) {
+                tooltip.accept(Component.literal("🦄 ¡Montable y vuela libremente!").withStyle(ChatFormatting.AQUA));
+            }
+        } else {
+            tooltip.accept(Component.translatable("kawaipals.orb.empty").withStyle(ChatFormatting.DARK_GRAY));
+        }
     }
 
     private InteractionResult summonPal(ItemStack stack, Player player, ServerLevel level) {

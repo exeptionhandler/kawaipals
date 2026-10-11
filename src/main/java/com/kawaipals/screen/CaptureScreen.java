@@ -168,13 +168,13 @@ public class CaptureScreen extends Screen {
 
         int shakeX = (phaseTicks % 4 < 2) ? -4 : 4;
         extractor.centeredText(this.font, Component.literal("✦ ¡UN ESPÍRITU ESTÁ SALIENDO DEL COFRE! ✦")
-            .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), cx + shakeX, cy - 30, 0xFFFFFF);
+            .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), cx + shakeX, cy - 30, 0xFFFFFFFF);
 
         extractor.centeredText(this.font, Component.literal("✧ " + palType.displayName + " ✧")
-            .withStyle(rarity.color, ChatFormatting.BOLD), cx, cy, 0xFFFFFF);
+            .withStyle(rarity.color, ChatFormatting.BOLD), cx, cy, 0xFFFFFFFF);
 
         extractor.centeredText(this.font, Component.literal("★ Rareza: " + rarity.displayName)
-            .withStyle(rarity.color), cx, cy + 20, 0xAAAAAA);
+            .withStyle(rarity.color), cx, cy + 20, 0xFFAAAAAA);
     }
 
     private void renderMinigame(GuiGraphicsExtractor extractor, int left, int top) {
@@ -182,11 +182,11 @@ public class CaptureScreen extends Screen {
         int cy = top + H / 2;
 
         extractor.centeredText(this.font, Component.literal("¡CAPTURANDO A " + palType.displayName.toUpperCase() + "!")
-            .withStyle(rarity.color, ChatFormatting.BOLD), cx, top + 15, 0xFFFFFF);
+            .withStyle(rarity.color, ChatFormatting.BOLD), cx, top + 15, 0xFFFFFFFF);
 
         switch (minigame) {
             case TIMING_RING -> {
-                extractor.centeredText(this.font, Component.literal("Haz clic cuando el anillo exterior coincida con el objetivo"), cx, top + 35, 0xDDDDDD);
+                extractor.centeredText(this.font, Component.literal("Haz clic cuando el anillo exterior coincida con el objetivo"), cx, top + 35, 0xFFDDDDDD);
 
                 int tr = (int) targetRadius;
                 extractor.fill(cx - tr, cy - tr, cx + tr, cy + tr, 0x5500FF88);
@@ -198,7 +198,7 @@ public class CaptureScreen extends Screen {
                 extractor.fill(cx + cr - 2, cy - cr, cx + cr, cy + cr, 0xFFFFFFFF);
             }
             case SEQUENCE_QTE -> {
-                extractor.centeredText(this.font, Component.literal("Presiona las flechas en orden antes de que se acabe el tiempo:"), cx, top + 35, 0xDDDDDD);
+                extractor.centeredText(this.font, Component.literal("Presiona las flechas en orden antes de que se acabe el tiempo:"), cx, top + 35, 0xFFDDDDDD);
 
                 StringBuilder seqStr = new StringBuilder();
                 for (int i = 0; i < keySequence.size(); i++) {
@@ -213,13 +213,13 @@ public class CaptureScreen extends Screen {
                 }
 
                 extractor.centeredText(this.font, Component.literal(seqStr.toString())
-                    .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD), cx, cy, 0xFFFFFF);
+                    .withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD), cx, cy, 0xFFFFFFFF);
 
                 int barW = (int) ((qteTimer / 200.0f) * 160);
                 extractor.fill(cx - 80, cy + 30, cx - 80 + barW, cy + 36, 0xFFFF4444);
             }
             case AFFINITY_BAR -> {
-                extractor.centeredText(this.font, Component.literal("Mantén presionado el clic para mantener el corazón en la zona verde"), cx, top + 35, 0xDDDDDD);
+                extractor.centeredText(this.font, Component.literal("Mantén presionado el clic para mantener el corazón en la zona verde"), cx, top + 35, 0xFFDDDDDD);
 
                 int barX = cx - 15;
                 int barY = top + 55;
@@ -233,7 +233,7 @@ public class CaptureScreen extends Screen {
                 int indY = barY + (int) ((1.0f - indicatorPos) * (barH - 10));
                 extractor.fill(barX + 5, indY, barX + 25, indY + 10, 0xFFFFCC00);
 
-                extractor.centeredText(this.font, Component.literal("Amistad: " + (int)(affinityProgress * 100) + "%"), cx, top + 160, 0xFFFFAA);
+                extractor.centeredText(this.font, Component.literal("Amistad: " + (int)(affinityProgress * 100) + "%"), cx, top + 160, 0xFFFFFFAA);
             }
         }
     }
@@ -242,16 +242,16 @@ public class CaptureScreen extends Screen {
         int cx = left + W / 2;
         int cy = top + H / 2;
         extractor.centeredText(this.font, Component.literal("✨ ¡ESPÍRITU CAPTURADO CON ÉXITO! ✨")
-            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), cx, cy - 20, 0x55FF55);
+            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), cx, cy - 20, 0xFF55FF55);
         extractor.centeredText(this.font, Component.literal(palType.displayName + " ahora es tu compañero!")
-            .withStyle(rarity.color), cx, cy + 5, 0xFFFFFF);
+            .withStyle(rarity.color), cx, cy + 5, 0xFFFFFFFF);
     }
 
     private void renderFail(GuiGraphicsExtractor extractor, int left, int top) {
         int cx = left + W / 2;
         int cy = top + H / 2;
         extractor.centeredText(this.font, Component.literal("💨 ¡El espíritu se asustó y escapó!")
-            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD), cx, cy - 10, 0xFF5555);
+            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD), cx, cy - 10, 0xFFFF5555);
     }
 
     @Override

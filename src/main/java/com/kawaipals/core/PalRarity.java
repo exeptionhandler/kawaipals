@@ -10,7 +10,7 @@ public enum PalRarity {
     COMMON(
         "Common",
         ChatFormatting.WHITE,
-        0xFFFFFF,
+        0xFFFFFFFF,
         /*dropWeight=*/  60,
         /*circleSize=*/  40,
         /*captureSpeed=*/ 1.2f
@@ -19,7 +19,7 @@ public enum PalRarity {
     RARE(
         "Rare",
         ChatFormatting.AQUA,
-        0x55FFFF,
+        0xFF55FFFF,
         /*dropWeight=*/  25,
         /*circleSize=*/  28,
         /*captureSpeed=*/ 1.8f
@@ -28,7 +28,7 @@ public enum PalRarity {
     EPIC(
         "Epic",
         ChatFormatting.LIGHT_PURPLE,
-        0xFF55FF,
+        0xFFFF55FF,
         /*dropWeight=*/  12,
         /*circleSize=*/  16,
         /*captureSpeed=*/ 2.6f
@@ -37,7 +37,7 @@ public enum PalRarity {
     LEGENDARY(
         "Legendary",
         ChatFormatting.GOLD,
-        0xFFAA00,
+        0xFFFFAA00,
         /*dropWeight=*/   3,
         /*circleSize=*/   8,
         /*captureSpeed=*/ 3.5f

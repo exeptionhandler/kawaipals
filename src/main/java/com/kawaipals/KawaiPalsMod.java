@@ -58,6 +58,15 @@ public class KawaiPalsMod implements ModInitializer {
         // 5. Register loot-table injections
         KawaiPalsLootModifier.register();
 
+        // 6. Register chest encounter event (opening structure chests wakes up KawaiPals!)
+        com.kawaipals.worldgen.ChestEncounterHandler.register();
+
+        // 7. Register debug & player commands (/kawaipals give, spawn, minigame, build_shrine)
+        com.kawaipals.command.KawaiPalsCommands.register();
+
+        // 8. Register custom shrine worldgen features
+        com.kawaipals.worldgen.ModWorldGen.register();
+
         LOGGER.info("[KawaiPals] Initialisation complete.");
     }
 }

@@ -109,7 +109,7 @@ public class CompendiumScreen extends Screen {
             int bgColor = (pal == selectedPal) ? 0x669955FF : (isHovered ? 0x44FFFFFF : 0x22FFFFFF);
 
             extractor.fill(cx, cy, cx + cellW - 4, cy + cellH - 4, bgColor);
-            extractor.text(this.font, pal.displayName, cx + 4, cy + 8, 0xFFFFFF, false);
+            extractor.text(this.font, pal.displayName, cx + 4, cy + 8, 0xFFFFFFFF, false);
             extractor.text(this.font, pal.rarity.displayName.substring(0, 3), cx + 4, cy + 22, pal.rarity.rgbColor, false);
         }
 
@@ -118,21 +118,21 @@ public class CompendiumScreen extends Screen {
             int dy = top + 38;
 
             extractor.text(this.font, Component.literal(selectedPal.displayName)
-                .withStyle(selectedPal.rarity.color, ChatFormatting.BOLD), dx, dy, 0xFFFFFF, false);
+                .withStyle(selectedPal.rarity.color, ChatFormatting.BOLD), dx, dy, 0xFFFFFFFF, false);
 
             extractor.text(this.font, Component.literal("★ " + selectedPal.rarity.displayName)
-                .withStyle(selectedPal.rarity.color), dx, dy + 16, 0xCCCCCC, false);
+                .withStyle(selectedPal.rarity.color), dx, dy + 16, 0xFFCCCCCC, false);
 
-            extractor.text(this.font, Component.literal("✦ Poder Especial:").withStyle(ChatFormatting.GOLD), dx, dy + 36, 0xFFCC00, false);
-            extractor.textWithWordWrap(this.font, Component.literal(selectedPal.powerDescription), dx, dy + 50, 120, 0xDDDDDD);
+            extractor.text(this.font, Component.literal("✦ Poder Especial:").withStyle(ChatFormatting.GOLD), dx, dy + 36, 0xFFFFCC00, false);
+            extractor.textWithWordWrap(this.font, Component.literal(selectedPal.powerDescription), dx, dy + 50, 120, 0xFFDDDDDD);
 
             if (selectedPal == PalType.PEGASITO) {
-                extractor.text(this.font, Component.literal("¡Montable y Vuela!").withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC), dx, dy + 110, 0x55FFFF, false);
+                extractor.text(this.font, Component.literal("¡Montable y Vuela!").withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC), dx, dy + 110, 0xFF55FFFF, false);
             }
         }
 
         int collectedCount = 3;
-        extractor.text(this.font, Component.literal("Colección: " + collectedCount + "/12").withStyle(ChatFormatting.LIGHT_PURPLE), left + 220, top + 14, 0xFFAAFF, false);
+        extractor.text(this.font, Component.literal("Colección: " + collectedCount + "/12").withStyle(ChatFormatting.LIGHT_PURPLE), left + 220, top + 14, 0xFFFFAAFF, false);
     }
 
     @Override

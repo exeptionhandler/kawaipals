@@ -18,25 +18,35 @@ public final class KawaiPalsLootModifier {
 
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
+            float chance = 0.0f;
+
             if (BuiltInLootTables.SIMPLE_DUNGEON.equals(key)) {
-                tableBuilder.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
-                    .when(LootItemRandomChanceCondition.randomChance(0.15f))
-                    .add(LootItem.lootTableItem(ModItems.PAL_ORB)));
+                chance = 0.50f;
             } else if (BuiltInLootTables.DESERT_PYRAMID.equals(key)) {
-                tableBuilder.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
-                    .when(LootItemRandomChanceCondition.randomChance(0.10f))
-                    .add(LootItem.lootTableItem(ModItems.PAL_ORB)));
+                chance = 0.45f;
+            } else if (BuiltInLootTables.ABANDONED_MINESHAFT.equals(key)) {
+                chance = 0.40f;
+            } else if (BuiltInLootTables.ANCIENT_CITY.equals(key)) {
+                chance = 0.60f;
+            } else if (BuiltInLootTables.WOODLAND_MANSION.equals(key)) {
+                chance = 0.55f;
+            } else if (BuiltInLootTables.UNDERWATER_RUIN_BIG.equals(key) || BuiltInLootTables.UNDERWATER_RUIN_SMALL.equals(key)) {
+                chance = 0.40f;
+            } else if (BuiltInLootTables.JUNGLE_TEMPLE.equals(key)) {
+                chance = 0.45f;
             } else if (BuiltInLootTables.BASTION_TREASURE.equals(key)) {
-                tableBuilder.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
-                    .when(LootItemRandomChanceCondition.randomChance(0.05f))
-                    .add(LootItem.lootTableItem(ModItems.PAL_ORB)));
+                chance = 0.50f;
             } else if (BuiltInLootTables.END_CITY_TREASURE.equals(key)) {
+                chance = 0.50f;
+            }
+
+            if (chance > 0.0f) {
                 tableBuilder.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
-                    .when(LootItemRandomChanceCondition.randomChance(0.03f))
+                    .when(LootItemRandomChanceCondition.randomChance(chance))
                     .add(LootItem.lootTableItem(ModItems.PAL_ORB)));
             }
         });
 
-        KawaiPalsMod.LOGGER.info("[KawaiPals] Loot table modifications registered.");
+        KawaiPalsMod.LOGGER.info("[KawaiPals] Loot table modifications registered with enhanced structure coverage.");
     }
 }

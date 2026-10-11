@@ -26,6 +26,10 @@ public class PalEntityModel extends GeoModel<PalEntity> {
 
     @Override
     public Identifier getTextureResource(GeoRenderState renderState) {
+        if (renderState != null && renderState.hasGeckolibData(PalEntityRenderer.PAL_TEXTURE_TICKET)) {
+            String palId = renderState.getGeckolibData(PalEntityRenderer.PAL_TEXTURE_TICKET);
+            return Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "textures/entity/" + palId + ".png");
+        }
         return FALLBACK_TEXTURE;
     }
 

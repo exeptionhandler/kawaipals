@@ -22,6 +22,9 @@ public final class ModItemGroups {
             .displayItems((params, output) -> {
                 output.accept(ModItems.COMPENDIUM);
                 output.accept(ModItems.PAL_ORB);
+                for (com.kawaipals.core.PalType type : com.kawaipals.core.PalType.values()) {
+                    output.accept(com.kawaipals.item.PalOrbItem.createCaptured(type));
+                }
             })
             .build()
     );
