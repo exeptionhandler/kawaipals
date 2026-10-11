@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "kawaipals:ruinas_celestiales",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 28,
+    "separation": 8,
+    "salt": 234567891
+  }
+}

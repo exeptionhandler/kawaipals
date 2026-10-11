@@ -1,0 +1,56 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "name": "infernal_pal",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 50,
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{palType:\"fenixito\",captured:true}"
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "kawaipals:pal_orb_fenixito"
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 50,
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{palType:\"carbonito\",captured:true}"
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "kawaipals:pal_orb_carbonito"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "infernal_treasures",
+      "rolls": { "min": 2, "max": 4 },
+      "entries": [
+        { "type": "minecraft:item", "name": "minecraft:netherite_scrap", "weight": 5 },
+        { "type": "minecraft:item", "name": "minecraft:magma_cream", "weight": 35 },
+        { "type": "minecraft:item", "name": "minecraft:blaze_powder", "weight": 30 },
+        { "type": "minecraft:item", "name": "minecraft:gold_ingot", "weight": 30 },
+        { "type": "minecraft:item", "name": "kawaipals:compendium", "weight": 15 }
+      ]
+    }
+  ]
+}

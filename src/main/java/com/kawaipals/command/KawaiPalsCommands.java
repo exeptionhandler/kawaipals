@@ -134,6 +134,33 @@ public final class KawaiPalsCommands {
                         return 1;
                     })
                 )
+                .then(Commands.literal("build_celestial")
+                    .executes(ctx -> {
+                        ServerPlayer player = ctx.getSource().getPlayerOrException();
+                        com.kawaipals.worldgen.KawaiiShrineBuilder.buildCelestial(player.level(), player.blockPosition());
+                        ctx.getSource().sendSuccess(() -> Component.literal("✨ ¡Ruinas Celestiales construidas con éxito!")
+                            .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
+                        return 1;
+                    })
+                )
+                .then(Commands.literal("build_xolotl")
+                    .executes(ctx -> {
+                        ServerPlayer player = ctx.getSource().getPlayerOrException();
+                        com.kawaipals.worldgen.KawaiiShrineBuilder.buildXolotl(player.level(), player.blockPosition());
+                        ctx.getSource().sendSuccess(() -> Component.literal("🌸 ¡Templo del Ajolote Místico construido con éxito!")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD), false);
+                        return 1;
+                    })
+                )
+                .then(Commands.literal("build_infernal")
+                    .executes(ctx -> {
+                        ServerPlayer player = ctx.getSource().getPlayerOrException();
+                        com.kawaipals.worldgen.KawaiiShrineBuilder.buildInfernal(player.level(), player.blockPosition());
+                        ctx.getSource().sendSuccess(() -> Component.literal("🔥 ¡Altar Infernal de Ascuas construido con éxito!")
+                            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD), false);
+                        return 1;
+                    })
+                )
         );
     }
 }

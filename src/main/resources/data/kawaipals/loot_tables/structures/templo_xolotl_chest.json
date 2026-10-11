@@ -1,0 +1,73 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "name": "xolotl_temple_pal",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 50,
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{palType:\"xolotl_rey\",captured:true}"
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "kawaipals:pal_orb_xolotl_rey"
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 30,
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{palType:\"gotita\",captured:true}"
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "kawaipals:pal_orb_gotita"
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "kawaipals:pal_orb",
+          "weight": 20,
+          "functions": [
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{palType:\"musgosin\",captured:true}"
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "kawaipals:pal_orb_musgosin"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "xolotl_temple_treasures",
+      "rolls": { "min": 2, "max": 4 },
+      "entries": [
+        { "type": "minecraft:item", "name": "minecraft:heart_of_the_sea", "weight": 10 },
+        { "type": "minecraft:item", "name": "minecraft:nautilus_shell", "weight": 25 },
+        { "type": "minecraft:item", "name": "minecraft:prismarine_crystals", "weight": 35 },
+        { "type": "minecraft:item", "name": "minecraft:sea_pickle", "weight": 20 },
+        { "type": "minecraft:item", "name": "kawaipals:compendium", "weight": 15 }
+      ]
+    }
+  ]
+}

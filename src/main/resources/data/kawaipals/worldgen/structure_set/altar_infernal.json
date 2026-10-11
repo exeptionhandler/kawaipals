@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "kawaipals:altar_infernal",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 18,
+    "separation": 4,
+    "salt": 456789123
+  }
+}
