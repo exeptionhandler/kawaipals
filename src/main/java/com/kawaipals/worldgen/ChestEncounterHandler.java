@@ -60,16 +60,29 @@ public final class ChestEncounterHandler {
         PalType[] all = PalType.values();
         PalType pal = all[RANDOM.nextInt(all.length)];
 
-        // Particle burst
-        level.sendParticles(ParticleTypes.HEART, pos.getX() + 0.5, pos.getY() + 1.2, pos.getZ() + 0.5, 20, 0.4, 0.4, 0.4, 0.1);
-        level.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.2, pos.getZ() + 0.5, 15, 0.3, 0.3, 0.3, 0.05);
+        // 1. Physically open the 3D chest lid in the world!
+        level.blockEvent(pos, level.getBlockState(pos).getBlock(), 1, 1);
+        level.playSound(null, pos, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 1.0f, 1.0f);
 
-        // Chime sound
-        level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 1.0f, 1.2f);
+        // 2. Particle burst of hearts, enchantment sparkles, and totem dust
+        level.sendParticles(ParticleTypes.HEART, pos.getX() + 0.5, pos.getY() + 1.2, pos.getZ() + 0.5, 25, 0.4, 0.5, 0.4, 0.15);
+        level.sendParticles(ParticleTypes.ENCHANTED_HIT, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 30, 0.5, 0.8, 0.5, 0.2);
+        level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, pos.getX() + 0.5, pos.getY() + 1.1, pos.getZ() + 0.5, 20, 0.3, 0.5, 0.3, 0.1);
+
+        // 3. Magical sounds
+        level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 1.2f, 1.3f);
+        level.playSound(null, pos, SoundEvents.ALLAY_AMBIENT_WITHOUT_ITEM, SoundSource.NEUTRAL, 1.0f, 1.2f);
+
+        // 4. Spawn the wild companion physically emerging upwards from inside the chest
+        com.kawaipals.entity.PalEntity wildPal = new com.kawaipals.entity.PalEntity(com.kawaipals.registry.ModEntities.PAL_ENTITY, level);
+        wildPal.setPalType(pal);
+        wildPal.setPos(pos.getX() + 0.5, pos.getY() + 0.7, pos.getZ() + 0.5);
+        wildPal.setDeltaMovement(0.0, 0.32, 0.0);
+        level.addFreshEntity(wildPal);
 
         // Tell player
         player.sendSystemMessage(
-            Component.literal("✨ ¡Un espíritu salvaje ha despertado en el cofre!").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)
+            Component.literal("✨ ¡" + pal.displayName + " ha salido del cofre!").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)
         );
 
         // Open capture screen minigame

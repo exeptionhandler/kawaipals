@@ -34,7 +34,7 @@ public class CaptureScreen extends Screen {
     private Phase phase = Phase.CHEST_SHAKE;
 
     private int phaseTicks = 0;
-    private static final int SHAKE_DURATION = 40;
+    private static final int SHAKE_DURATION = 65;
 
     // Minigame 1: Timing Ring
     private float currentRadius;
@@ -91,6 +91,15 @@ public class CaptureScreen extends Screen {
 
         switch (phase) {
             case CHEST_SHAKE -> {
+                if (phaseTicks == 1) {
+                    playSound(SoundEvents.CHEST_LOCKED, 1.2f);
+                }
+                if (phaseTicks == 20) {
+                    playSound(SoundEvents.CHEST_OPEN, 1.0f);
+                }
+                if (phaseTicks == 30) {
+                    playSound(SoundEvents.AMETHYST_BLOCK_CHIME, 1.3f);
+                }
                 if (phaseTicks >= SHAKE_DURATION) {
                     phase = Phase.MINIGAME;
                     phaseTicks = 0;
@@ -164,17 +173,127 @@ public class CaptureScreen extends Screen {
 
     private void renderChestShake(GuiGraphicsExtractor extractor, int left, int top) {
         int cx = left + W / 2;
-        int cy = top + H / 2;
+        int cy = top + H / 2 + 10;
 
-        int shakeX = (phaseTicks % 4 < 2) ? -4 : 4;
+        // Header Title
         extractor.centeredText(this.font, Component.literal("✦ ¡UN ESPÍRITU ESTÁ SALIENDO DEL COFRE! ✦")
-            .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), cx + shakeX, cy - 30, 0xFFFFFFFF);
+            .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), cx, top + 12, 0xFFFFFFFF);
 
-        extractor.centeredText(this.font, Component.literal("✧ " + palType.displayName + " ✧")
-            .withStyle(rarity.color, ChatFormatting.BOLD), cx, cy, 0xFFFFFFFF);
+        // Shake offset during closed/opening phase
+        int shakeX = 0;
+        if (phaseTicks < 20) {
+            shakeX = (int) (Math.sin(phaseTicks * 1.5) * 5.0);
+        }
 
-        extractor.centeredText(this.font, Component.literal("★ Rareza: " + rarity.displayName)
-            .withStyle(rarity.color), cx, cy + 20, 0xFFAAAAAA);
+        int chestW = 54;
+        int chestH = 34;
+        int chestX = cx - chestW / 2 + shakeX;
+        int chestY = cy - 10;
+
+        // 1. BEAM OF LIGHT WHEN OPEN
+        if (phaseTicks >= 20) {
+            float lightAlpha = Math.min(1.0f, (phaseTicks - 20) / 15.0f);
+            int alphaInt = (int)(lightAlpha * 0x77) << 24;
+            int beamColor = alphaInt | (rarity.rgbColor & 0x00FFFFFF);
+            for (int step = 0; step < 40; step++) {
+                int bw = (int) (chestW * 0.4 + step * 0.9);
+                extractor.fill(cx - bw / 2, chestY - step * 2, cx + bw / 2, chestY - step * 2 + 2, beamColor);
+            }
+        }
+
+        // 2. CHEST BASE (wood + gold trim)
+        extractor.fill(chestX, chestY, chestX + chestW, chestY + chestH, 0xFF8A5528);
+        extractor.fill(chestX + 2, chestY + 2, chestX + chestW - 2, chestY + chestH - 2, 0xFFAC6D37);
+        extractor.fill(chestX, chestY, chestX + 4, chestY + chestH, 0xFFE0A020);
+        extractor.fill(chestX + chestW - 4, chestY, chestX + chestW, chestY + chestH, 0xFFE0A020);
+        extractor.fill(chestX, chestY + chestH - 4, chestX + chestW, chestY + chestH, 0xFFE0A020);
+
+        // 3. CHEST LID (Closed vs Open)
+        if (phaseTicks < 20) {
+            // Closed Lid
+            int lidY = chestY - 14;
+            extractor.fill(chestX, lidY, chestX + chestW, chestY, 0xFF74451D);
+            extractor.fill(chestX + 2, lidY + 2, chestX + chestW - 2, chestY, 0xFF9E6331);
+            extractor.fill(chestX, lidY, chestX + 4, chestY, 0xFFE0A020);
+            extractor.fill(chestX + chestW - 4, lidY, chestX + chestW, chestY, 0xFFE0A020);
+            extractor.fill(chestX, lidY, chestX + chestW, lidY + 3, 0xFFE0A020);
+            // Golden Latch
+            extractor.fill(cx - 5 + shakeX, chestY - 4, cx + 5 + shakeX, chestY + 6, 0xFFF0F0F0);
+            extractor.fill(cx - 3 + shakeX, chestY - 2, cx + 3 + shakeX, chestY + 4, 0xFF444444);
+        } else {
+            // Open Lid (Tilted back/up)
+            int lidOpenProgress = Math.min(15, phaseTicks - 20);
+            int lidLift = (int) (lidOpenProgress * 1.6);
+            int lidY = chestY - 14 - lidLift;
+            extractor.fill(chestX, lidY, chestX + chestW, lidY + 12, 0xFF74451D);
+            extractor.fill(chestX + 2, lidY + 2, chestX + chestW - 2, lidY + 10, 0xFF9E6331);
+            extractor.fill(chestX, lidY, chestX + 4, lidY + 12, 0xFFE0A020);
+            extractor.fill(chestX + chestW - 4, lidY, chestX + chestW, lidY + 12, 0xFFE0A020);
+
+            // Dark interior of the open chest
+            extractor.fill(chestX + 4, chestY, chestX + chestW - 4, chestY + 14, 0xFF2A1608);
+        }
+
+        // 4. KAWAII SPIRIT EMERGING & FLOATING OUT
+        if (phaseTicks >= 22) {
+            float emergeProgress = Math.min(1.0f, (phaseTicks - 22) / 38.0f);
+            float heightCurve = (float) Math.sin(emergeProgress * Math.PI * 0.5);
+            int petY = chestY + 8 - (int) (heightCurve * 62.0f);
+
+            // Squash & stretch bouncy animation
+            float bob = (float) Math.sin(phaseTicks * 0.35);
+            int squashW = (int) (bob * 2);
+            int squashH = (int) (-bob * 2);
+
+            int pr = 18;
+            int petLeft = cx - pr - squashW;
+            int petRight = cx + pr + squashW;
+            int petTop = petY - pr - squashH;
+            int petBottom = petY + pr + squashH;
+
+            // Spirit Glow Aura
+            int auraColor = 0x55000000 | (rarity.rgbColor & 0x00FFFFFF);
+            extractor.fill(petLeft - 4, petTop - 4, petRight + 4, petBottom + 4, auraColor);
+
+            // Spirit Body
+            int bodyColor = 0xFF000000 | (rarity.rgbColor & 0x00FFFFFF);
+            extractor.fill(petLeft, petTop, petRight, petBottom, bodyColor);
+
+            // Inner body highlight
+            extractor.fill(petLeft + 3, petTop + 3, cx + 2, petTop + 10, 0xAAFFFFFF);
+
+            // Big Kawaii Slime Eyes
+            int eyeY = petTop + 11;
+            // Left eye
+            extractor.fill(cx - 10, eyeY, cx - 4, eyeY + 8, 0xFF221133);
+            extractor.fill(cx - 9, eyeY + 1, cx - 6, eyeY + 4, 0xFFFFFFFF);
+            // Right eye
+            extractor.fill(cx + 4, eyeY, cx + 10, eyeY + 8, 0xFF221133);
+            extractor.fill(cx + 5, eyeY + 1, cx + 8, eyeY + 4, 0xFFFFFFFF);
+
+            // Blushing Pink Cheeks
+            extractor.fill(cx - 12, eyeY + 8, cx - 7, eyeY + 11, 0xFFFF6699);
+            extractor.fill(cx + 7, eyeY + 8, cx + 12, eyeY + 11, 0xFFFF6699);
+
+            // Tiny Smile
+            extractor.fill(cx - 2, eyeY + 7, cx + 2, eyeY + 9, 0xFF442244);
+
+            // Orbiting sparkles/hearts
+            if (phaseTicks >= 35) {
+                for (int i = 0; i < 4; i++) {
+                    double angle = (phaseTicks * 0.12) + (i * Math.PI / 2.0);
+                    int sx = cx + (int) (Math.cos(angle) * 32.0);
+                    int sy = petY + (int) (Math.sin(angle) * 20.0);
+                    extractor.fill(sx - 2, sy - 2, sx + 2, sy + 2, 0xFFFFAAFF);
+                }
+
+                // Pal Name Banner
+                extractor.centeredText(this.font, Component.literal("✧ " + palType.displayName + " ✧")
+                    .withStyle(rarity.color, ChatFormatting.BOLD), cx, petBottom + 8, 0xFFFFFFFF);
+                extractor.centeredText(this.font, Component.literal("★ " + rarity.displayName)
+                    .withStyle(rarity.color), cx, petBottom + 20, 0xFFAAAAAA);
+            }
+        }
     }
 
     private void renderMinigame(GuiGraphicsExtractor extractor, int left, int top) {
