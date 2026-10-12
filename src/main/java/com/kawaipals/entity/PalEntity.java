@@ -9,10 +9,19 @@ import com.geckolib.util.GeckoLibUtil;
 import com.kawaipals.core.PalType;
 import com.kawaipals.item.PalOrbItem;
 import com.kawaipals.registry.ModItems;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.item.Items;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -47,9 +56,13 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
     private static final String NBT_OWNER_UUID  = "OwnerUUID";
     private static final String NBT_SHIELD_CD   = "ShieldCooldown";
     private static final String NBT_RESURRECT   = "ResurrectUsed";
+    private static final String NBT_SITTING     = "IsSitting";
 
     private static final EntityDataAccessor<String> PAL_TYPE_SYNC =
         SynchedEntityData.defineId(PalEntity.class, EntityDataSerializers.STRING);
+
+    private static final EntityDataAccessor<Boolean> SITTING_SYNC =
+        SynchedEntityData.defineId(PalEntity.class, EntityDataSerializers.BOOLEAN);
 
     private PalType palType = PalType.GOTITA;
 
@@ -75,21 +88,27 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(PAL_TYPE_SYNC, "gotita");
+        builder.define(SITTING_SYNC, false);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 20.0)
             .add(Attributes.MOVEMENT_SPEED, 0.35)
-            .add(Attributes.FOLLOW_RANGE, 24.0);
+            .add(Attributes.FOLLOW_RANGE, 32.0);
     }
 
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.2, 3.0f, 16.0f));
-        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Player.class, 6.0f, 1.2, 1.4, p -> ownerUUID == null));
-        this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 0.8));
+        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.25, 2.5f, 6.0f));
+        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Player.class, 6.0f, 1.2, 1.4, p -> ownerUUID == null && !isSitting()));
+        this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 0.8) {
+            @Override
+            public boolean canUse() {
+                return !PalEntity.this.isSitting() && super.canUse();
+            }
+        });
         this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 8.0f));
         this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
     }
@@ -162,14 +181,127 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (palType == PalType.PEGASITO
-                && ownerUUID != null
-                && ownerUUID.equals(player.getUUID())
-                && !this.isVehicle()) {
-            player.startRiding(this);
+        if (this.level().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
+
+        ItemStack itemInHand = player.getItemInHand(hand);
+
+        // Owner interactions
+        if (ownerUUID != null && ownerUUID.equals(player.getUUID())) {
+
+            // 1. Direct recall with empty PalOrb
+            if (itemInHand.is(ModItems.PAL_ORB) && !PalOrbItem.isCaptured(itemInHand)) {
+                PalOrbItem.setPalType(itemInHand, this.palType);
+                PalOrbItem.setCaptured(itemInHand, true);
+                PalOrbItem.setPalUUID(itemInHand, this.getUUID());
+                itemInHand.set(DataComponents.CUSTOM_NAME, Component.literal("Orbe de " + this.palType.displayName).withStyle(this.palType.rarity.color));
+
+                if (this.level() instanceof ServerLevel sl) {
+                    sl.sendParticles(ParticleTypes.PORTAL, this.getX(), this.getY() + 0.5, this.getZ(), 20, 0.3, 0.3, 0.3, 0.2);
+                    sl.playSound(null, this.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.5f);
+                }
+
+                player.sendSystemMessage(
+                    Component.translatable("kawaipals.orb.recalled", this.palType.displayName).withStyle(ChatFormatting.GREEN)
+                );
+                this.discard();
+                return InteractionResult.SUCCESS;
+            }
+
+            // 2. Feeding / Healing
+            if (isFoodItem(itemInHand)) {
+                if (this.getHealth() < this.getMaxHealth()) {
+                    this.heal(4.0f);
+                    if (!player.isCreative()) {
+                        itemInHand.shrink(1);
+                    }
+                    if (this.level() instanceof ServerLevel sl) {
+                        sl.sendParticles(ParticleTypes.HEART, this.getX(), this.getY() + 0.6, this.getZ(), 6, 0.25, 0.25, 0.25, 0.05);
+                        sl.playSound(null, this.blockPosition(), SoundEvents.GENERIC_EAT.value(), SoundSource.NEUTRAL, 1.0f, 1.3f);
+                    }
+                    sendFeedback(player,
+                        Component.literal("🍎 Alimentaste a " + this.palType.displayName + " (Vida: " + (int)this.getHealth() + "/" + (int)this.getMaxHealth() + ")")
+                            .withStyle(ChatFormatting.GREEN)
+                    );
+                    return InteractionResult.SUCCESS;
+                } else {
+                    if (!player.isCreative()) {
+                        itemInHand.shrink(1);
+                    }
+                    if (this.level() instanceof ServerLevel sl) {
+                        sl.sendParticles(ParticleTypes.HEART, this.getX(), this.getY() + 0.6, this.getZ(), 8, 0.3, 0.3, 0.3, 0.05);
+                        sl.playSound(null, this.blockPosition(), SoundEvents.ALLAY_AMBIENT_WITH_ITEM, SoundSource.NEUTRAL, 1.0f, 1.5f);
+                    }
+                    sendFeedback(player,
+                        Component.literal("💖 ¡" + this.palType.displayName + " está muy feliz!").withStyle(this.palType.rarity.color)
+                    );
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
+            // 3. Petting (Sneak + Empty hand)
+            if (player.isShiftKeyDown() && itemInHand.isEmpty()) {
+                if (this.level() instanceof ServerLevel sl) {
+                    sl.sendParticles(ParticleTypes.HEART, this.getX(), this.getY() + 0.6, this.getZ(), 5, 0.2, 0.2, 0.2, 0.05);
+                    sl.playSound(null, this.blockPosition(), SoundEvents.ALLAY_AMBIENT_WITH_ITEM, SoundSource.NEUTRAL, 1.0f, 1.4f);
+                }
+                sendFeedback(player,
+                    Component.literal("💖 Acariciaste con cariño a " + this.palType.displayName + " ✨")
+                        .withStyle(this.palType.rarity.color)
+                );
+                return InteractionResult.SUCCESS;
+            }
+
+            // 4. Pegasito mount
+            if (palType == PalType.PEGASITO && !this.isVehicle() && itemInHand.isEmpty() && !player.isShiftKeyDown()) {
+                if (!isSitting()) {
+                    player.startRiding(this);
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
+            // 5. Toggle Sitting / Stay mode (Empty hand, not sneaking)
+            if (itemInHand.isEmpty() && !player.isShiftKeyDown()) {
+                boolean newSitting = !isSitting();
+                setSitting(newSitting);
+
+                if (this.level() instanceof ServerLevel sl) {
+                    sl.playSound(null, this.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.NEUTRAL, 0.7f, newSitting ? 0.9f : 1.4f);
+                }
+
+                if (newSitting) {
+                    sendFeedback(player,
+                        Component.literal("🐾 " + this.palType.displayName + " se queda esperando aquí.")
+                            .withStyle(ChatFormatting.GOLD)
+                    );
+                } else {
+                    sendFeedback(player,
+                        Component.literal("🐾 " + this.palType.displayName + " te sigue de nuevo.")
+                            .withStyle(ChatFormatting.GREEN)
+                    );
+                }
+                return InteractionResult.SUCCESS;
+            }
+        }
+
         return super.mobInteract(player, hand);
+    }
+
+    private void sendFeedback(Player player, Component message) {
+        if (player instanceof ServerPlayer sp) {
+            sp.sendSystemMessage(message, true);
+        } else {
+            player.sendSystemMessage(message);
+        }
+    }
+
+    private static boolean isFoodItem(ItemStack stack) {
+        return stack.is(Items.SWEET_BERRIES)
+                || stack.is(Items.GLOW_BERRIES)
+                || stack.is(Items.HONEY_BOTTLE)
+                || stack.is(Items.COOKIE)
+                || stack.is(Items.APPLE);
     }
 
     @Override
@@ -214,13 +346,44 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
     }
 
     @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        // 1. Friendly fire immunity from owner
+        if (source.getEntity() != null && ownerUUID != null && source.getEntity().getUUID().equals(ownerUUID)) {
+            return false;
+        }
+
+        // 2. Immune to fall damage and suffocation
+        if (source.is(DamageTypes.FALL) || source.is(DamageTypes.IN_WALL)) {
+            return false;
+        }
+
+        return super.hurtServer(level, source, amount);
+    }
+
+    @Override
     protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean recentlyHit) {
         super.dropCustomDeathLoot(level, source, recentlyHit);
         ItemStack orbStack = new ItemStack(ModItems.PAL_ORB);
         PalOrbItem.setPalType(orbStack, this.palType);
         PalOrbItem.setCaptured(orbStack, true);
+        orbStack.set(DataComponents.CUSTOM_NAME, Component.literal("Orbe de " + this.palType.displayName).withStyle(this.palType.rarity.color));
+
+        // If owner is alive and nearby, return directly into owner inventory!
+        if (ownerUUID != null) {
+            Player owner = level.getPlayerByUUID(ownerUUID);
+            if (owner != null && owner.isAlive()) {
+                if (owner.getInventory().add(orbStack)) {
+                    owner.sendSystemMessage(
+                        Component.literal("🛡️ ¡" + this.palType.displayName + " regresó a tu inventario para protegerse!")
+                            .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
+                    );
+                    return;
+                }
+            }
+        }
 
         ItemEntity drop = new ItemEntity(level, this.getX(), this.getY(), this.getZ(), orbStack);
+        drop.setExtendedLifetime();
         level.addFreshEntity(drop);
     }
 
@@ -228,6 +391,7 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
     public void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putString(NBT_PAL_TYPE, getPalType().id);
+        output.putBoolean(NBT_SITTING, isSitting());
         if (ownerUUID != null) {
             output.putString(NBT_OWNER_UUID, ownerUUID.toString());
         }
@@ -243,6 +407,7 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
         if (parsed != null) {
             this.setPalType(parsed);
         }
+        this.setSitting(input.getBooleanOr(NBT_SITTING, false));
 
         String ownerStr = input.getStringOr(NBT_OWNER_UUID, "");
         if (!ownerStr.isEmpty()) {
@@ -252,6 +417,19 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
         }
         shieldCooldown = input.getIntOr(NBT_SHIELD_CD, 0);
         resurrectUsedToday = input.getBooleanOr(NBT_RESURRECT, false);
+    }
+
+    public boolean isSitting() {
+        return this.entityData != null ? this.entityData.get(SITTING_SYNC) : false;
+    }
+
+    public void setSitting(boolean sitting) {
+        if (this.entityData != null) {
+            this.entityData.set(SITTING_SYNC, sitting);
+        }
+        if (sitting) {
+            this.getNavigation().stop();
+        }
     }
 
     public PalType getPalType() {
@@ -305,7 +483,7 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
 
         @Override
         public boolean canUse() {
-            if (pal.ownerUUID == null) return false;
+            if (pal.ownerUUID == null || pal.isSitting()) return false;
             if (!(pal.level() instanceof ServerLevel sl)) return false;
             owner = sl.getPlayerByUUID(pal.ownerUUID);
             if (owner == null || !owner.isAlive()) return false;
@@ -314,7 +492,7 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
 
         @Override
         public boolean canContinueToUse() {
-            if (owner == null || !owner.isAlive()) return false;
+            if (owner == null || !owner.isAlive() || pal.isSitting()) return false;
             return pal.distanceToSqr(owner) > (minDist * minDist);
         }
 
@@ -330,10 +508,44 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
 
         @Override
         public void tick() {
+            if (owner == null) return;
             pal.getLookControl().setLookAt(owner, 10.0f, pal.getMaxHeadXRot());
+
+            double distSqr = pal.distanceToSqr(owner);
+
+            // Teleport if too far (> 16 blocks away) or lost
+            if (distSqr > 256.0) {
+                teleportToOwner();
+                return;
+            }
+
             if (--timeToRecalcPath <= 0) {
                 timeToRecalcPath = 10;
-                pal.getNavigation().moveTo(owner, speed);
+                boolean pathFound = pal.getNavigation().moveTo(owner, speed);
+                if (!pathFound && distSqr > 100.0) {
+                    teleportToOwner();
+                }
+            }
+        }
+
+        private void teleportToOwner() {
+            if (owner == null) return;
+            Level level = pal.level();
+            for (int i = 0; i < 10; i++) {
+                int ox = pal.getRandom().nextIntBetweenInclusive(-2, 2);
+                int oz = pal.getRandom().nextIntBetweenInclusive(-2, 2);
+                int oy = pal.getRandom().nextIntBetweenInclusive(-1, 1);
+                BlockPos target = owner.blockPosition().offset(ox, oy, oz);
+                if (level.getBlockState(target).isAir() && level.getBlockState(target.above()).isAir()) {
+                    pal.setPos(target.getX() + 0.5, target.getY(), target.getZ() + 0.5);
+                    pal.getNavigation().stop();
+                    if (level instanceof ServerLevel sl) {
+                        sl.sendParticles(ParticleTypes.PORTAL, pal.getX(), pal.getY() + 0.5, pal.getZ(), 16, 0.3, 0.3, 0.3, 0.1);
+                        sl.sendParticles(ParticleTypes.END_ROD, pal.getX(), pal.getY() + 0.5, pal.getZ(), 8, 0.2, 0.2, 0.2, 0.05);
+                        sl.playSound(null, pal.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.NEUTRAL, 1.0f, 1.6f);
+                    }
+                    break;
+                }
             }
         }
     }

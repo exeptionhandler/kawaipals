@@ -9,6 +9,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -95,8 +96,12 @@ public class PalOrbItem extends Item {
             if (type == PalType.PEGASITO) {
                 tooltip.accept(Component.literal("🦄 ¡Montable y vuela libremente!").withStyle(ChatFormatting.AQUA));
             }
+            tooltip.accept(Component.literal(""));
+            tooltip.accept(Component.literal("✦ [Clic derecho]: Invocar a tu espíritu").withStyle(ChatFormatting.DARK_AQUA));
+            tooltip.accept(Component.literal("✦ [Shift + Clic]: Guardar Pal cercano").withStyle(ChatFormatting.DARK_PURPLE));
         } else {
             tooltip.accept(Component.translatable("kawaipals.orb.empty").withStyle(ChatFormatting.DARK_GRAY));
+            tooltip.accept(Component.literal("✦ Haz clic derecho sobre tu Pal invocado para guardarlo.").withStyle(ChatFormatting.GRAY));
         }
     }
 
@@ -117,6 +122,14 @@ public class PalOrbItem extends Item {
         player.sendSystemMessage(
             Component.translatable("kawaipals.orb.summoned", type.displayName)
                 .withStyle(type.rarity.color));
+
+        if (player instanceof ServerPlayer sp) {
+            sp.sendSystemMessage(
+                Component.literal("✨ ¡" + type.displayName + " invocado! (" + type.powerDescription + ")")
+                    .withStyle(type.rarity.color, ChatFormatting.BOLD),
+                true
+            );
+        }
 
         level.playSound(null, player.blockPosition(),
             SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.4f);

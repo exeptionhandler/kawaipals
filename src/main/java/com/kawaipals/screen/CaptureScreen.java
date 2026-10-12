@@ -427,6 +427,7 @@ public class CaptureScreen extends Screen {
         phase = Phase.SUCCESS;
         phaseTicks = 0;
         playSound(SoundEvents.PLAYER_LEVELUP, 1.0f);
+        CompendiumScreen.recordDiscovery(palType);
         CaptureSuccessPacket.send(palType);
     }
 

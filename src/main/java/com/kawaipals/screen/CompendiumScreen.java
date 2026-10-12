@@ -81,8 +81,39 @@ public class CompendiumScreen extends Screen {
         return false;
     }
 
+    public static final java.util.Set<PalType> DISCOVERED_PALS = new java.util.HashSet<>();
+
+    public static void recordDiscovery(PalType type) {
+        if (type != null) {
+            DISCOVERED_PALS.add(type);
+        }
+    }
+
+    public static boolean isDiscovered(PalType type) {
+        if (net.minecraft.client.Minecraft.getInstance().player != null && net.minecraft.client.Minecraft.getInstance().player.isCreative()) {
+            return true;
+        }
+        return DISCOVERED_PALS.contains(type);
+    }
+
+    private void syncInventoryDiscoveries() {
+        if (net.minecraft.client.Minecraft.getInstance().player != null) {
+            net.minecraft.world.entity.player.Inventory inv = net.minecraft.client.Minecraft.getInstance().player.getInventory();
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                net.minecraft.world.item.ItemStack item = inv.getItem(i);
+                if (item.is(com.kawaipals.registry.ModItems.PAL_ORB)) {
+                    PalType pt = com.kawaipals.item.PalOrbItem.getPalType(item);
+                    if (pt != null) {
+                        DISCOVERED_PALS.add(pt);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        syncInventoryDiscoveries();
         super.extractRenderState(extractor, mouseX, mouseY, partialTick);
 
         int left = (this.width - W) / 2;
@@ -105,33 +136,54 @@ public class CompendiumScreen extends Screen {
             int cx = gridX + col * cellW;
             int cy = gridY + row * cellH;
 
+            boolean discovered = isDiscovered(pal);
             boolean isHovered = mouseX >= cx && mouseX < cx + cellW - 4 && mouseY >= cy && mouseY < cy + cellH - 4;
             int bgColor = (pal == selectedPal) ? 0x669955FF : (isHovered ? 0x44FFFFFF : 0x22FFFFFF);
 
             extractor.fill(cx, cy, cx + cellW - 4, cy + cellH - 4, bgColor);
-            extractor.text(this.font, pal.displayName, cx + 4, cy + 8, 0xFFFFFFFF, false);
-            extractor.text(this.font, pal.rarity.displayName.substring(0, 3), cx + 4, cy + 22, pal.rarity.rgbColor, false);
+            if (discovered) {
+                extractor.text(this.font, pal.displayName, cx + 4, cy + 8, 0xFFFFFFFF, false);
+                extractor.text(this.font, "✔ " + pal.rarity.displayName.substring(0, 3), cx + 4, cy + 22, pal.rarity.rgbColor, false);
+            } else {
+                extractor.text(this.font, "???", cx + 4, cy + 8, 0xFFAAAAAA, false);
+                extractor.text(this.font, "🔒 Bloq", cx + 4, cy + 22, 0xFF666666, false);
+            }
         }
 
         if (selectedPal != null) {
             int dx = left + 205;
             int dy = top + 38;
+            boolean discovered = isDiscovered(selectedPal);
 
-            extractor.text(this.font, Component.literal(selectedPal.displayName)
-                .withStyle(selectedPal.rarity.color, ChatFormatting.BOLD), dx, dy, 0xFFFFFFFF, false);
+            if (discovered) {
+                extractor.text(this.font, Component.literal(selectedPal.displayName)
+                    .withStyle(selectedPal.rarity.color, ChatFormatting.BOLD), dx, dy, 0xFFFFFFFF, false);
 
-            extractor.text(this.font, Component.literal("★ " + selectedPal.rarity.displayName)
-                .withStyle(selectedPal.rarity.color), dx, dy + 16, 0xFFCCCCCC, false);
+                extractor.text(this.font, Component.literal("★ " + selectedPal.rarity.displayName)
+                    .withStyle(selectedPal.rarity.color), dx, dy + 16, 0xFFCCCCCC, false);
 
-            extractor.text(this.font, Component.literal("✦ Poder Especial:").withStyle(ChatFormatting.GOLD), dx, dy + 36, 0xFFFFCC00, false);
-            extractor.textWithWordWrap(this.font, Component.literal(selectedPal.powerDescription), dx, dy + 50, 120, 0xFFDDDDDD);
+                extractor.text(this.font, Component.literal("✦ Poder Especial:").withStyle(ChatFormatting.GOLD), dx, dy + 36, 0xFFFFCC00, false);
+                extractor.textWithWordWrap(this.font, Component.literal(selectedPal.powerDescription), dx, dy + 50, 120, 0xFFDDDDDD);
 
-            if (selectedPal == PalType.PEGASITO) {
-                extractor.text(this.font, Component.literal("¡Montable y Vuela!").withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC), dx, dy + 110, 0xFF55FFFF, false);
+                if (selectedPal == PalType.PEGASITO) {
+                    extractor.text(this.font, Component.literal("¡Montable y Vuela!").withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC), dx, dy + 110, 0xFF55FFFF, false);
+                }
+            } else {
+                extractor.text(this.font, Component.literal("??? (Oculto)")
+                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD), dx, dy, 0xFFAAAAAA, false);
+
+                extractor.text(this.font, Component.literal("🔒 No Descubierto")
+                    .withStyle(ChatFormatting.RED), dx, dy + 16, 0xFFFF5555, false);
+
+                extractor.text(this.font, Component.literal("✦ Pista:").withStyle(ChatFormatting.YELLOW), dx, dy + 36, 0xFFFFCC00, false);
+                extractor.textWithWordWrap(this.font, Component.literal("Usa tu Brújula Kawaii para encontrar cofres en templos y santuarios."), dx, dy + 50, 120, 0xFF888888);
             }
         }
 
-        int collectedCount = 3;
+        int collectedCount = 0;
+        for (PalType p : PalType.values()) {
+            if (isDiscovered(p)) collectedCount++;
+        }
         extractor.text(this.font, Component.literal("Colección: " + collectedCount + "/12").withStyle(ChatFormatting.LIGHT_PURPLE), left + 220, top + 14, 0xFFFFAAFF, false);
     }
 
