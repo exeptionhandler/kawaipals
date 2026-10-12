@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BAB",
+    "ACA",
+    "BAB"
+  ],
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "B": "minecraft:sweet_berries",
+    "C": "minecraft:compass"
+  },
+  "result": {
+    "id": "kawaipals:kawai_compass",
+    "count": 1
+  }
+}

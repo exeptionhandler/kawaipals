@@ -125,6 +125,15 @@ public final class KawaiPalsCommands {
                         return 1;
                     })
                 )
+                .then(Commands.literal("compass")
+                    .executes(ctx -> {
+                        ServerPlayer player = ctx.getSource().getPlayerOrException();
+                        player.getInventory().add(new ItemStack(ModItems.KAWAI_COMPASS));
+                        ctx.getSource().sendSuccess(() -> Component.literal("🧭 ¡Has recibido la Brújula Kawaii!")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE), false);
+                        return 1;
+                    })
+                )
                 .then(Commands.literal("build_shrine")
                     .executes(ctx -> {
                         ServerPlayer player = ctx.getSource().getPlayerOrException();

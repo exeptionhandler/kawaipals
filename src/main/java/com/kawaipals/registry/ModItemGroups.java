@@ -21,6 +21,7 @@ public final class ModItemGroups {
             .icon(() -> new ItemStack(ModItems.COMPENDIUM))
             .displayItems((params, output) -> {
                 output.accept(ModItems.COMPENDIUM);
+                output.accept(ModItems.KAWAI_COMPASS);
                 output.accept(ModItems.PAL_ORB);
                 for (com.kawaipals.core.PalType type : com.kawaipals.core.PalType.values()) {
                     output.accept(com.kawaipals.item.PalOrbItem.createCaptured(type));
