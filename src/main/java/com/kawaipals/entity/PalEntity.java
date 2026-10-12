@@ -9,6 +9,9 @@ import com.geckolib.util.GeckoLibUtil;
 import com.kawaipals.core.PalType;
 import com.kawaipals.item.PalOrbItem;
 import com.kawaipals.registry.ModItems;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -45,6 +48,9 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
     private static final String NBT_SHIELD_CD   = "ShieldCooldown";
     private static final String NBT_RESURRECT   = "ResurrectUsed";
 
+    private static final EntityDataAccessor<String> PAL_TYPE_SYNC =
+        SynchedEntityData.defineId(PalEntity.class, EntityDataSerializers.STRING);
+
     private PalType palType = PalType.GOTITA;
 
     @Nullable
@@ -63,6 +69,12 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
 
     public PalEntity(EntityType<? extends PalEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(PAL_TYPE_SYNC, "gotita");
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -215,7 +227,7 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
     @Override
     public void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
-        output.putString(NBT_PAL_TYPE, palType.id);
+        output.putString(NBT_PAL_TYPE, getPalType().id);
         if (ownerUUID != null) {
             output.putString(NBT_OWNER_UUID, ownerUUID.toString());
         }
@@ -228,7 +240,9 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
         super.readAdditionalSaveData(input);
         String typeId = input.getStringOr(NBT_PAL_TYPE, "gotita");
         PalType parsed = PalType.fromId(typeId);
-        if (parsed != null) palType = parsed;
+        if (parsed != null) {
+            this.setPalType(parsed);
+        }
 
         String ownerStr = input.getStringOr(NBT_OWNER_UUID, "");
         if (!ownerStr.isEmpty()) {
@@ -240,10 +254,23 @@ public class PalEntity extends PathfinderMob implements GeoEntity {
         resurrectUsedToday = input.getBooleanOr(NBT_RESURRECT, false);
     }
 
-    public PalType getPalType() { return palType; }
+    public PalType getPalType() {
+        if (this.entityData != null) {
+            String id = this.entityData.get(PAL_TYPE_SYNC);
+            PalType type = PalType.fromId(id);
+            if (type != null) {
+                this.palType = type;
+                return type;
+            }
+        }
+        return (this.palType != null) ? this.palType : PalType.GOTITA;
+    }
 
     public void setPalType(PalType type) {
         this.palType = (type != null) ? type : PalType.GOTITA;
+        if (this.entityData != null) {
+            this.entityData.set(PAL_TYPE_SYNC, this.palType.id);
+        }
     }
 
     public @Nullable UUID getOwnerUUID() { return ownerUUID; }

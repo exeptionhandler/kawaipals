@@ -11,13 +11,13 @@ import net.minecraft.resources.Identifier;
 public class PalEntityModel extends GeoModel<PalEntity> {
 
     private static final Identifier MODEL_LOCATION =
-        Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "geo/pal_entity.geo.json");
+        Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "pal_entity");
 
     private static final Identifier FALLBACK_TEXTURE =
         Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "textures/entity/gotita.png");
 
     private static final Identifier ANIMATION_LOCATION =
-        Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "animations/pal_entity.animation.json");
+        Identifier.fromNamespaceAndPath(KawaiPalsMod.MOD_ID, "pal_entity");
 
     @Override
     public Identifier getModelResource(GeoRenderState renderState) {
